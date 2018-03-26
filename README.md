@@ -1,4 +1,4 @@
-# FreeCodeCamp Data Visualization Project 5: Show National Contiguity with a Force Directed Graph
+# FreeCodeCamp Data Visualization Project 5: Map Data Across the Globe
 
 ## [Instructions on FreeCodeCamp](https://www.freecodecamp.org/challenges/map-data-across-the-globe)
 
