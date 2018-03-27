@@ -2,24 +2,30 @@ const zoom = d3.zoom() //https://bl.ocks.org/iamkevinv/0a24e9126cd2fa6b283c6f2d7
 	.scaleExtent([.5, 18])
 	.on("zoom", zoomed);
 
+const projection = d3.geoMercator() //https://github.com/d3/d3-geo
+	.translate([780, 360])
+	.scale(300),
+	path = d3.geoPath(projection);
+
+// Set SVG dimensions and append map 
+
+const w = document.getElementById("main").clientWidth,
+	h = document.getElementById("main").clientHeight;
+
+
+let map = d3.select("svg")
+	.attr("width", w)
+	.attr("height", h)
+
+// Tooltip
+const tooltips = d3.select("#chart")
+	.append("div")
+	.attr("class", "tooltip")
+	.style("opacity", 0)
+
 // Map data
 d3.json("https://d3js.org/world-50m.v1.json", (error, data) => {
 	if (error) throw error;
-
-	const projection = d3.geoMercator() //https://github.com/d3/d3-geo
-		.translate([780, 360])
-		.scale(300),
-		path = d3.geoPath(projection);
-
-	const w = document.getElementById("main").clientWidth,
-		h = document.getElementById("main").clientHeight;
-
-
-	// Set SVG dimensions and append map 
-	let map = d3.select("svg")
-		.attr("width", w)
-		.attr("height", h)
-
 
 	map.selectAll('path')
 		.data(topojson.feature(data, data.objects.countries).features) //https://github.com/topojson/topojson to convert topojson to GeoJSON
@@ -29,42 +35,33 @@ d3.json("https://d3js.org/world-50m.v1.json", (error, data) => {
 		.attr('stroke', '#266D98')
 		.attr('d', path)
 
-
-	// Tooltip
-	let tooltips = d3.select("#chart")
-		.append("div")
-		.attr("class", "tooltip")
-		.style("opacity", 0)
-	let create = (d) => {
-		let tooltip = `<span> ${d.Name} : ${d.Nationality} </span>`;
-		tooltip += `<br/>Year: ${d.Year}, Time: ${parseInt(d.Seconds / 60)}:${d.Seconds % 60}<br/>`;
-		d.doping !== "" ?
-			tooltip += "<br/>" + d.Doping :
-			tooltip += "<br/>No Doping Allegation";
-
-		return tooltip;
-	}
 });
 
 // Meteorite Data
 d3.json("https://data.nasa.gov/resource/y77d-th95.geojson", (error, data) => {
 	if (error) throw error;
-	json.features.sort(function(a, b) {
-		return new Date(a.properties.year) - new Date(b.properties.year);
+
+	data.features.sort(function(a, b) { //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort Sorts meteorites by date 
+		return new Date(a.properties.year) - new Date(b.properties.year); //https://stackoverflow.com/questions/10123953/sort-javascript-object-array-by-date
 	})
-	json.features.map(function(e) {
+
+	// Assigns colours to meteorites according to impact date
+	let hue = 0,
+		colours = [];
+	data.features.map(function(e) {
 		hue += .35;
-		colors[e.properties.year] = hue;
+		colours[e.properties.year] = hue;
 		e.color = 'hsl(' + hue + ',100%, 50%)';
 	})
 
-	json.features.sort(function(a, b) {
+	// Sorts meteorites by mass
+	data.features.sort(function(a, b) {
 		return b.properties.mass - a.properties.mass
 	})
 
-	meteorites = svg.append('g')
+	let meteorites = map.append('g')
 		.selectAll('path')
-		.data(json.features)
+		.data(data.features)
 		.enter()
 		.append('circle')
 		.attr('cx', function(d) {
@@ -96,10 +93,10 @@ d3.json("https://data.nasa.gov/resource/y77d-th95.geojson", (error, data) => {
 		.on('mouseover', function(d) {
 			d3.select(this).attr('d', path).style('fill', 'black');
 			// Show tooltip
-			div.transition()
+			tooltips.transition()
 				.duration(200)
 				.style('opacity', .9);
-			div.html('<span class="def">fall:</span> ' + d.properties.fall + '<br>' +
+			tooltips.html('<span class="def">fall:</span> ' + d.properties.fall + '<br>' +
 					'<span class="def">mass:</span> ' + d.properties.mass + '<br>' +
 					'<span class="def">name:</span> ' + d.properties.name + '<br>' +
 					'<span class="def">nametype:</span> ' + d.properties.nametype + '<br>' +
@@ -116,7 +113,7 @@ d3.json("https://data.nasa.gov/resource/y77d-th95.geojson", (error, data) => {
 			});
 
 			// Fade out tooltip
-			div.transition()
+			tooltips.transition()
 				.duration(500)
 				.style('opacity', 0);
 		});
