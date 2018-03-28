@@ -108,11 +108,13 @@ const main = (error, countries, meteor) => {
 				.duration(500)
 				.style("opacity", 0);
 		});
+
+	function zoomed() {
+		map.attr("transform", d3.event.transform);
+		meteorites.attr("transform", d3.event.transform);
+	}
+
 };
 
-let zoomed = () => {
-	map.attr("transform", d3.event.transform);
-	meteorites.attr("transform", d3.event.transform);
-}
 
 d3.queue().defer(d3.json, "https://d3js.org/world-50m.v1.json").defer(d3.json, "https://data.nasa.gov/resource/y77d-th95.geojson").await(main); // http://bl.ocks.org/mapsam/6090056 Required or circles will render obscured by map
