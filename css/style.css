@@ -29,6 +29,9 @@ body {
         align-items: center;
         background-color: #0B1E2A;
         color: white;
+        z-index: 1;
+        position: relative;
+        /* Needed for zoomed map to not overlay over header and footer. Note that position must be set for z-index to work */
 }
 
 #footer {
@@ -39,6 +42,9 @@ body {
         align-items: center;
         background-color: #0B1E2A;
         color: white;
+        z-index: 1;
+        position: relative;
+        /* Needed for zoomed map to not overlay over header and footer. Note that position must be set for z-index to work */
 }
 
 h1,

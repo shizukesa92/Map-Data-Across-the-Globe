@@ -109,7 +109,7 @@ const main = (error, countries, meteor) => {
 				.style("opacity", 0);
 		});
 
-	function zoomed() {
+	function zoomed() { // Do not use arrow syntax or it will go out of scope
 		map.attr("transform", d3.event.transform);
 		meteorites.attr("transform", d3.event.transform);
 	}
