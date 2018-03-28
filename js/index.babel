@@ -55,7 +55,8 @@ const main = (error, countries, meteor) => {
 		b.properties.mass - a.properties.mass
 	)
 
-	let meteorites = map.selectAll("path")
+	let meteorites = map.append("g") // g required for bigger circles to render
+		.selectAll("path")
 		.data(meteor.features)
 		.enter()
 		.append("circle")
@@ -109,7 +110,7 @@ const main = (error, countries, meteor) => {
 		});
 
 	function zoomed() { // Do not use arrow syntax or it will go out of scope
-		map.attr("transform", d3.event.transform);
+		map.attr("transform", d3.event.transform); // No need transform meteorites because they are part of map
 	}
 
 	function sizeChange() {
