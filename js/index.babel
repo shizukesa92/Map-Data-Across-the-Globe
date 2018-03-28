@@ -2,20 +2,19 @@
 const main = (error, countries, meteor) => {
 	if (error) throw error;
 
-	let zoom = d3.zoom() //https://bl.ocks.org/iamkevinv/0a24e9126cd2fa6b283c6f2d774b69a2
-		.scaleExtent([.5, 18])
-		.on("zoom", zoomed);
-
-	var projection = d3.geoMercator() //https://github.com/d3/d3-geo
-		.translate([780, 360])
-		.scale(300),
-		path = d3.geoPath(projection);
-
 	// Set SVG dimensions and append map 
 
 	let w = document.getElementById("main").clientWidth,
 		h = document.getElementById("main").clientHeight;
 
+	let zoom = d3.zoom() //https://bl.ocks.org/iamkevinv/0a24e9126cd2fa6b283c6f2d774b69a2
+		.scaleExtent([.5, 18])
+		.on("zoom", zoomed);
+
+	var projection = d3.geoMercator() //https://github.com/d3/d3-geo
+		.translate([w / 2, h / 2])
+		.scale(300),
+		path = d3.geoPath(projection);
 
 	let map = d3.select("svg")
 		.attr("width", w)
@@ -67,7 +66,7 @@ const main = (error, countries, meteor) => {
 			projection([d.properties.reclong, d.properties.reclat])[1]
 		)
 		.attr("r", d => {
-			const range = 718750 / 2 / 2;
+			var range = 718750 / 2 / 2;
 
 			if (d.properties.mass <= range) return 2;
 			else if (d.properties.mass <= range * 2) return 10;
@@ -89,13 +88,13 @@ const main = (error, countries, meteor) => {
 			tooltips.transition()
 				.duration(200)
 				.style("opacity", .9);
-			tooltips.html('<span class="def">fall:</span> ' + d.properties.fall + '<br>' +
-					'<span class="def">mass:</span> ' + d.properties.mass + '<br>' +
-					'<span class="def">name:</span> ' + d.properties.name + '<br>' +
-					'<span class="def">nametype:</span> ' + d.properties.nametype + '<br>' +
-					'<span class="def">recclass:</span> ' + d.properties.recclass + '<br>' +
-					'<span class="def">reclat:</span> ' + d.properties.reclat + '<br>' +
-					'<span class="def">year:</span> ' + d.properties.year + '<br>')
+			tooltips.html('<span >fall:</span> ' + d.properties.fall + '<br>' +
+					'<span >mass:</span> ' + d.properties.mass + '<br>' +
+					'<span >name:</span> ' + d.properties.name + '<br>' +
+					'<span >nametype:</span> ' + d.properties.nametype + '<br>' +
+					'<span >recclass:</span> ' + d.properties.recclass + '<br>' +
+					'<span >reclat:</span> ' + d.properties.reclat + '<br>' +
+					'<span >year:</span> ' + d.properties.year + '<br>')
 				.style("left", (d3.event.pageX) + "px")
 				.style("top", (d3.event.pageY) + "px")
 		})
@@ -111,10 +110,15 @@ const main = (error, countries, meteor) => {
 
 	function zoomed() { // Do not use arrow syntax or it will go out of scope
 		map.attr("transform", d3.event.transform);
-		meteorites.attr("transform", d3.event.transform);
 	}
+
+	function sizeChange() {
+		d3.select("path").attr("transform", "scale(" + document.getElementById("main").clientWidth + ")");
+		$("svg").height(document.getElementById("main").clientHeight);
+	}
+	sizeChange();
 
 };
 
 
-d3.queue().defer(d3.json, "https://d3js.org/world-50m.v1.json").defer(d3.json, "https://data.nasa.gov/resource/y77d-th95.geojson").await(main); // http://bl.ocks.org/mapsam/6090056 Required or circles will render obscured by map
+d3.queue().defer(d3.json, "https://d3js.org/world-50m.v1.json").defer(d3.json, "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/meteorite-strike-data.json").await(main); // http://bl.ocks.org/mapsam/6090056 Required or circles will render obscured by map
